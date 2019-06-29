@@ -10,3 +10,5 @@ unittest2
 google-api-python-client
 Flask
 scikit-image
+flask_dropzone
+flask_uploads
