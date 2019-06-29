@@ -7,6 +7,9 @@ import os
 import cv2
 # from skimage import io
 import json
+import urllib.request
+import numpy as np
+
 
 ENGINE_IMG_SIZE = 299
 item_list = \
@@ -184,16 +187,30 @@ def index():
 
             # append image urls
             file_urls.append(photos.url(filename))
-            image = cv2.imread(file_urls[0])
-            w,h, _ = image.shape
+            # img = io.imread(file_urls[0])
+            # print(img)
+            req = urllib.request.urlopen(file_urls[0])
+            arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
+            img = cv2.imdecode(arr, -1)
+            # w, h , _ = image.shape
             img = cv2.resize(img, (299,299))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img_json = {
-                'inputs': image.tolist()
+                'inputs': img.tolist()
             }
             # call gcp api
+            print('aaaaaaaaaaaa')
             res = predict_json(PROJECT, MODEL, img_json, VERSION)
+            print('bbbbbbbbbbb')
             res = res[0]
+
+            item_price, item_amount, item_price_total, total = estimate(res)
+            session['item_amount'] = item_amount
+            session['item_price_total'] = item_price_total
+            session['item_price'] = item_price
+            session['total'] = total
+
+            break
 
         session['file_urls'] = file_urls
         return "uploading..."
@@ -213,9 +230,11 @@ def results():
     file_urls = session['file_urls']
     session.pop('file_urls', None)
 
-    items = [{'coca': 1, 'pepsi': 2, 'aquafina': 5}]
+    item_price, item_amount, item_price_total, total = session['item_price'], session['item_amount'], session['item_price_total'], session['total']
+
+    # items = [{'coca': 1, 'pepsi': 2, 'aquafina': 5}]
     
-    return render_template('results.html', file_urls=file_urls, items=items)
+    return render_template('results.html', file_urls=file_urls, item_amount=item_amount, item_price=item_price, item_price_total=item_price_total, total=total)
 
 
 def draw_box(image, boxes):
@@ -239,12 +258,14 @@ def estimate(res):
     total_item_price = 0.0
     purchases_amount = dict()
     purchases_item_price = dict()
+    item_price = dict()
 
     for i in range(num_of_detections):
         if detection_scores[i] < 0.4:
             continue
 
         purchases_amount[item_list[int(detection_classes[i])]['name']] = 0
+        item_price[item_list[int(detection_classes[i])]['name']] = item_list[int(detection_classes[i])]['price']
         purchases_item_price[item_list[int(detection_classes[i])]['name']] = 0.0
     
     for i in range(num_of_detections):
@@ -255,7 +276,7 @@ def estimate(res):
         purchases_item_price[item_list[int(detection_classes[i])]['name']] += item_list[int(detection_classes[i])]['price']
         total_price += item_list[int(detection_classes[i])]['price']
 
-    return purchases_amount, purchases_item_price, total_price
+    return item_price, purchases_amount, purchases_item_price, total_price
         
         
 def test_json(json_path):

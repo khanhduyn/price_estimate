@@ -37,22 +37,35 @@ tr:nth-child(even) {
         <tr>
             <th>Item</th>
             <th>Price per Item</th>
-            <th>Amount</th>
-            <th>Price</th>
+            <!-- <th>Amount</th>
+            <th>Price</th> -->
         </tr>
-        {% for item in items %}
-            {% for key, value in item.items() %}
-                <tr>
-                    <td>{{key}}</td>
-                    <td>{{value}}</td>
-                    <td>1$</td>
-                </tr>
-            {% endfor %}
+        {% for key, value in item_price.items() %}
+            <tr>
+                <td>{{key}}</td>
+                <td>{{value}}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <th>Amount</th>
+        </tr>
+        {% for key, value in item_amount.items() %}
+            <tr>
+                <td>{{value}}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <th>Total price</th>
+        </tr>
+        {% for key, value in item_price_total.items() %}
+            <tr>
+                <td>{{value}}</td>
+            </tr>
         {% endfor %}
         <tr>
             <td>Total</td>
             <td></td>
-            <td>3$</td>
+            <td>{{Total}}</td>
         </tr>
     </table>
 
