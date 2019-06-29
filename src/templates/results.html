@@ -1,0 +1,61 @@
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+</style>
+</head>
+
+
+<h1>Items purchased</h1>
+{% for file_url in file_urls %}
+    <img style="width:320px;height:240px" src="{{ file_url }}" class="center">
+{% endfor %}
+
+<h1>Result</h1>
+<body>    
+    <table>
+        <tr>
+            <th>Item</th>
+            <th>Amount</th>
+            <th>Price</th>
+        </tr>
+        {% for item in items %}
+            {% for key, value in item.items() %}
+                <tr>
+                    <td>{{key}}</td>
+                    <td>{{value}}</td>
+                    <td>1$</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+        <tr>
+            <td>Total</td>
+            <td></td>
+            <td>3$</td>
+        </tr>
+    </table>
+
+    <p></p>
+    <a href="{{ url_for('index') }}">Continue</a><p>
+</body>
+
