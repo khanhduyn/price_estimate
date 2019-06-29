@@ -5,10 +5,103 @@ from googleapiclient import discovery
 
 import os
 import cv2
-from skimage import io
+# from skimage import io
 import json
 
 ENGINE_IMG_SIZE = 299
+item_list = \
+[{'name': 'None', 'price': 5},
+ {'name': 'person', 'price': 5},
+ {'name': 'bicycle', 'price': 5},
+ {'name': 'car', 'price': 5},
+ {'name': 'motorcycle', 'price': 5},
+ {'name': 'airplane', 'price': 5},
+ {'name': 'bus', 'price': 5},
+ {'name': 'train', 'price': 5},
+ {'name': 'truck', 'price': 5},
+ {'name': 'boat', 'price': 5},
+ {'name': 'traffic light', 'price': 5},
+ {'name': 'fire hydrant', 'price': 5},
+ {'name': 'street sign', 'price': 5},
+ {'name': 'stop sign', 'price': 5},
+ {'name': 'parking meter', 'price': 5},
+ {'name': 'bench', 'price': 5},
+ {'name': 'bird', 'price': 5},
+ {'name': 'cat', 'price': 5},
+ {'name': 'dog', 'price': 5},
+ {'name': 'horse', 'price': 5},
+ {'name': 'sheep', 'price': 5},
+ {'name': 'cow', 'price': 5},
+ {'name': 'elephant', 'price': 5},
+ {'name': 'bear', 'price': 5},
+ {'name': 'zebra', 'price': 5},
+ {'name': 'giraffe', 'price': 5},
+ {'name': 'hat', 'price': 5},
+ {'name': 'backpack', 'price': 5},
+ {'name': 'umbrella', 'price': 5},
+ {'name': 'shoe', 'price': 5},
+ {'name': 'eye glasses', 'price': 5},
+ {'name': 'handbag', 'price': 5},
+ {'name': 'tie', 'price': 5},
+ {'name': 'suitcase', 'price': 5},
+ {'name': 'frisbee', 'price': 5},
+ {'name': 'skis', 'price': 5},
+ {'name': 'snowboard', 'price': 5},
+ {'name': 'sports ball', 'price': 5},
+ {'name': 'kite', 'price': 5},
+ {'name': 'baseball bat', 'price': 5},
+ {'name': 'baseball glove', 'price': 5},
+ {'name': 'skateboard', 'price': 5},
+ {'name': 'surfboard', 'price': 5},
+ {'name': 'tennis racket', 'price': 5},
+ {'name': 'bottle', 'price': 5},
+ {'name': 'plate', 'price': 5},
+ {'name': 'wine glass', 'price': 5},
+ {'name': 'cup', 'price': 5},
+ {'name': 'fork', 'price': 5},
+ {'name': 'knife', 'price': 5},
+ {'name': 'spoon', 'price': 5},
+ {'name': 'bowl', 'price': 5},
+ {'name': 'banana', 'price': 5},
+ {'name': 'apple', 'price': 5},
+ {'name': 'sandwich', 'price': 5},
+ {'name': 'orange', 'price': 5},
+ {'name': 'broccoli', 'price': 5},
+ {'name': 'carrot', 'price': 5},
+ {'name': 'hot dog', 'price': 5},
+ {'name': 'pizza', 'price': 5},
+ {'name': 'donut', 'price': 5},
+ {'name': 'cake', 'price': 5},
+ {'name': 'chair', 'price': 5},
+ {'name': 'couch', 'price': 5},
+ {'name': 'potted plant', 'price': 5},
+ {'name': 'bed', 'price': 5},
+ {'name': 'mirror', 'price': 5},
+ {'name': 'dining table', 'price': 5},
+ {'name': 'window', 'price': 5},
+ {'name': 'desk', 'price': 5},
+ {'name': 'toilet', 'price': 5},
+ {'name': 'door', 'price': 5},
+ {'name': 'tv', 'price': 5},
+ {'name': 'laptop', 'price': 5},
+ {'name': 'mouse', 'price': 5},
+ {'name': 'remote', 'price': 5},
+ {'name': 'keyboard', 'price': 5},
+ {'name': 'cell phone', 'price': 5},
+ {'name': 'microwave', 'price': 5},
+ {'name': 'oven', 'price': 5},
+ {'name': 'toaster', 'price': 5},
+ {'name': 'sink', 'price': 5},
+ {'name': 'refrigerator', 'price': 5},
+ {'name': 'blender', 'price': 5},
+ {'name': 'book', 'price': 5},
+ {'name': 'clock', 'price': 5},
+ {'name': 'vase', 'price': 5},
+ {'name': 'scissors', 'price': 5},
+ {'name': 'teddy bear', 'price': 5},
+ {'name': 'hair drier', 'price': 5},
+ {'name': 'toothbrush', 'price': 5},
+ {'name': 'hair brush', 'price': 5}]
 
 app = Flask(__name__)
 dropzone = Dropzone(app)
@@ -140,7 +233,38 @@ def draw_box(image, boxes):
 def estimate(res):
     num_of_detections = int(res['num_detections'])
     detection_classes = res['detection_classes']
+    detection_scores = res['detection_scores']
+
+    total_price = 0.0
+    total_item_price = 0.0
+    purchases_amount = dict()
+    purchases_item_price = dict()
+
+    for i in range(num_of_detections):
+        if detection_scores[i] < 0.4:
+            continue
+
+        purchases_amount[item_list[int(detection_classes[i])]['name']] = 0
+        purchases_item_price[item_list[int(detection_classes[i])]['name']] = 0.0
     
+    for i in range(num_of_detections):
+        if detection_scores[i] < 0.4:
+            continue
+
+        purchases_amount[item_list[int(detection_classes[i])]['name']] += 1
+        purchases_item_price[item_list[int(detection_classes[i])]['name']] += item_list[int(detection_classes[i])]['price']
+        total_price += item_list[int(detection_classes[i])]['price']
+
+    return purchases_amount, purchases_item_price, total_price
+        
+        
+def test_json(json_path):
+    with open(json_path) as f:
+        res = json.load(f)
+        purchases = estimate(res)
+
+        print(purchases)
+
         
 if __name__ == '__main__':
     app.run()
