@@ -1,3 +1,8 @@
+import sys
+sys.path.append("/home/dks/workspace/hackathon/price_estimate/src")
+
+
+
 from flask import Flask, redirect, render_template, request, session, url_for, Response
 from flask_dropzone import Dropzone
 from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
@@ -10,6 +15,45 @@ import json
 import urllib.request
 import numpy as np
 import pathlib
+
+import glob
+import os
+import numpy as np
+import face_recognition
+known_face_encodings = []
+known_face_names = []
+
+def load_image(path):
+    for img in glob.glob(path + '/*.jpg'):
+        name = os.path.basename(img).split('.')[0]
+        print('User loading ...', name)
+        known_face_names.append(name)
+        image = face_recognition.load_image_file(img)
+        image_encode = face_recognition.face_encodings(image)[0]
+        known_face_encodings.append(image_encode)
+
+def identify(path):
+    input_img = face_recognition.load_image_file(path)
+    face_locations = face_recognition.face_locations(input_img)
+    face_encodings = face_recognition.face_encodings(input_img, face_locations)
+    face_names = []
+
+    for face_encoding in face_encodings:
+        name = "Unknown"
+
+        # Or instead, use the known face with the smallest distance to the new face
+        face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+        best_match_index = np.argmin(face_distances)
+        print('face distance: ', face_distances)
+        # print('face matches: ', matches)
+        if face_distances[best_match_index] <= 0.5:
+            name = known_face_names[best_match_index]
+
+        face_names.append(name)
+
+    print(face_names)
+    return face_names[0]
+
 
 
 ENGINE_IMG_SIZE = 299
@@ -108,6 +152,8 @@ item_list = \
  {'name': 'toothbrush', 'price': 5},
  {'name': 'hair brush', 'price': 5}]
 
+load_image('./known_face')
+
 app = Flask(__name__)
 dropzone = Dropzone(app)
 
@@ -180,11 +226,11 @@ def index():
         for f in file_obj:
             file = request.files.get(f)
             # cv2.imwrite()
-            
+
             # save the file with to our photos folder
             filename = photos.save(
                 file,
-                name=file.filename    
+                name=file.filename
             )
 
             # append image urls
@@ -215,27 +261,27 @@ def index():
             break
 
         session['file_urls'] = file_urls
-        # return "uploading..."
-        return render_template('capture_face.html')
-    # return dropzone template on GET request    
+        return "uploading..."
+        # return render_template('capture_face.html')
+    # return dropzone template on GET request
     return render_template('index.html')
 
-    
+
 
 @app.route('/results')
 def results():
-    
+
     # redirect to home if no images to display
     if "file_urls" not in session or session['file_urls'] == []:
         return redirect(url_for('index'))
-        
+
     # set the file_urls and remove the session variable
     file_urls = session['file_urls']
     session.pop('file_urls', None)
 
     item_price, item_amount, item_price_total, total = session['item_price'], session['item_amount'], session['item_price_total'], session['total']
     # items = [{'coca': 1, 'pepsi': 2, 'aquafina': 5}]
-    
+
     return render_template('results.html', file_urls=file_urls, item_amount=item_amount, item_price=item_price, item_price_total=item_price_total, total=total)
 
 
@@ -269,7 +315,7 @@ def estimate(res):
         purchases_amount[item_list[int(detection_classes[i])]['name']] = 0
         item_price[item_list[int(detection_classes[i])]['name']] = item_list[int(detection_classes[i])]['price']
         purchases_item_price[item_list[int(detection_classes[i])]['name']] = 0.0
-    
+
     for i in range(num_of_detections):
         if detection_scores[i] < DETECTION_THRESH:
             continue
@@ -279,8 +325,8 @@ def estimate(res):
         total_price += item_list[int(detection_classes[i])]['price']
 
     return item_price, purchases_amount, purchases_item_price, total_price
-        
-        
+
+
 def test_json(json_path):
     with open(json_path) as f:
         res = json.load(f)
@@ -307,6 +353,10 @@ def gen():
             capturing = False
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + open('demo.jpg', 'rb').read() + b'\r\n')
+@app.route('/get_user')
+def get_user():
+    name = identify('demo.jpg')
+    return Response(name)
 
 
 @app.route('/video_feed')
@@ -314,6 +364,6 @@ def video_feed():
     return Response(gen(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-        
+
 if __name__ == '__main__':
     app.run()
