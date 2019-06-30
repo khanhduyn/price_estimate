@@ -296,15 +296,15 @@ def gen():
     start = time.time()
     while capturing:
         ret, frame = cap.read()
-        if time.time() - start >= 3.0:
-            cap.release()
-            capturing = False
 
         if not ret:
             print("Error: failed to capture image")
             break
 
         cv2.imwrite('demo.jpg', frame)
+        if time.time() - start >= 3.0:
+            cap.release()
+            capturing = False
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + open('demo.jpg', 'rb').read() + b'\r\n')
 
