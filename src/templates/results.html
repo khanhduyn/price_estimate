@@ -27,7 +27,9 @@
         margin-right: auto;
         width: 50%;
     }
-
+    .center-block {
+        text-align: center;
+    }
     </style>
     <!-- Latest compiled and minified CSS -->
 </head>
@@ -63,6 +65,10 @@
                         <td>{{item_price_total[key]}}</td>
                     </tr>
                     {% endfor %}
+                    <tr>
+                        <th scope="row">Total</th>
+                        <td>{{total}}</td>
+                    <tr>
                 </tbody>
             </table>
         </div>
