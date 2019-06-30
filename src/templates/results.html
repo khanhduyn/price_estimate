@@ -1,75 +1,87 @@
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300italic,500,500italic,700,700italic,800,800italic" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 <style>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
+    table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    }
 
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
+    td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+    }
 
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
-.center {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 50%;
-}
+    tr:nth-child(even) {
+    background-color: #dddddd;
+    }
+    .center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
+    }
 
-</style>
+    </style>
+    <!-- Latest compiled and minified CSS -->
 </head>
+<body>
+    <div class="container">
+        <div class="row">
+            <h1>Items purchased</h1>
+        </div>
+        <div class="row">
+            {% for file_url in file_urls %}
+            <img style="width:320px;height:240px" src="{{ file_url }}" class="center">
+            {% endfor %}
+        </div>
+        <div class="row">
+            <h1>Result</h1>
+        </div>
+        <div class="row">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Item</th>
+                        <th scope="col">Price per Item</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Total price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key, value in item_amount.items() %}
+                    <tr>
+                        <th scope="row">{{key}}</th>
+                        <td>{{item_price[key]}}</td>
+                        <td>{{item_amount[key]}}</td>
+                        <td>{{item_price_total[key]}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 center-block">
+                <a class="btn btn-primary" href="{{ url_for('index') }}">Continue</a>
+            </div>
+        </div>
+    </div>
 
 
-<h1>Items purchased</h1>
-{% for file_url in file_urls %}
-    <img style="width:320px;height:240px" src="{{ file_url }}" class="center">
-{% endfor %}
-
-<h1>Result</h1>
-<body>    
-    <table>
-        <tr>
-            <th>Item</th>
-            <th>Price per Item</th>
-            <!-- <th>Amount</th>
-            <th>Price</th> -->
-        </tr>
-        {% for key, value in item_price.items() %}
-            <tr>
-                <td>{{key}}</td>
-                <td>{{value}}</td>
-            </tr>
-        {% endfor %}
-        <tr>
-            <th>Amount</th>
-        </tr>
-        {% for key, value in item_amount.items() %}
-            <tr>
-                <td>{{value}}</td>
-            </tr>
-        {% endfor %}
-        <tr>
-            <th>Total price</th>
-        </tr>
-        {% for key, value in item_price_total.items() %}
-            <tr>
-                <td>{{value}}</td>
-            </tr>
-        {% endfor %}
-        <tr>
-            <td>Total</td>
-            <td></td>
-            <td>{{total}}</td>
-        </tr>
-    </table>
-
+        
     <p></p>
-    <a href="{{ url_for('index') }}">Continue</a><p>
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
 </body>
 

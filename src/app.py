@@ -231,7 +231,6 @@ def results():
     session.pop('file_urls', None)
 
     item_price, item_amount, item_price_total, total = session['item_price'], session['item_amount'], session['item_price_total'], session['total']
-
     # items = [{'coca': 1, 'pepsi': 2, 'aquafina': 5}]
     
     return render_template('results.html', file_urls=file_urls, item_amount=item_amount, item_price=item_price, item_price_total=item_price_total, total=total)

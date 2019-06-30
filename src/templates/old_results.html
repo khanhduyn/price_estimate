@@ -1,0 +1,75 @@
+<head>
+<style>
+    table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    }
+
+    td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+    }
+
+    tr:nth-child(even) {
+    background-color: #dddddd;
+    }
+    .center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
+    }
+
+    </style>
+    <!-- Latest compiled and minified CSS -->
+</head>
+
+
+<h1>Items purchased</h1>
+{% for file_url in file_urls %}
+    <img style="width:320px;height:240px" src="{{ file_url }}" class="center">
+{% endfor %}
+
+<h1>Result</h1>
+<body>    
+    <table>
+        <tr>
+            <th>Item</th>
+            <th>Price per Item</th>
+            <!-- <th>Amount</th>
+            <th>Price</th> -->
+        </tr>
+        {% for key, value in item_price.items() %}
+            <tr>
+                <td>{{key}}</td>
+                <td>{{value}}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <th>Amount</th>
+        </tr>
+        {% for key, value in item_amount.items() %}
+            <tr>
+                <td>{{value}}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <th>Total price</th>
+        </tr>
+        {% for key, value in item_price_total.items() %}
+            <tr>
+                <td>{{value}}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td>Total</td>
+            <td></td>
+            <td>{{total}}</td>
+        </tr>
+    </table>
+
+    <p></p>
+</body>
+
