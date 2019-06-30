@@ -35,14 +35,19 @@
 </head>
 <body>
     <div class="container">
-        <div class="row">
+        <!-- <div class="row">
             <h1>Items purchased</h1>
-        </div>
-        <div class="row">
+        </div> -->
+        <div class="column">
+            <h1>Items purchased</h1>
             {% for file_url in file_urls %}
-            <img style="width:320px;height:240px" src="{{ file_url }}" class="center">
+            <img style="width:320px;height:240px" src="{{ file_url }}">
             {% endfor %}
+            <h1>Identity</h1>
+            <img style="width:160px;height:112px" src="{{ url_for('video_feed') }}">
         </div>
+        <p>  </p>
+        <p>  </p>
         <div class="row">
             <h1>Result</h1>
         </div>

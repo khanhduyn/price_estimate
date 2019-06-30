@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, redirect, render_template, request, session, url_for, Response
 from flask_dropzone import Dropzone
 from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
 from googleapiclient import discovery
@@ -9,9 +9,11 @@ import cv2
 import json
 import urllib.request
 import numpy as np
+import pathlib
 
 
 ENGINE_IMG_SIZE = 299
+DETECTION_THRESH = 0.5
 item_list = \
 [{'name': 'None', 'price': 5},
  {'name': 'person', 'price': 5},
@@ -213,7 +215,8 @@ def index():
             break
 
         session['file_urls'] = file_urls
-        return "uploading..."
+        # return "uploading..."
+        return render_template('capture_face.html')
     # return dropzone template on GET request    
     return render_template('index.html')
 
@@ -260,7 +263,7 @@ def estimate(res):
     item_price = dict()
 
     for i in range(num_of_detections):
-        if detection_scores[i] < 0.4:
+        if detection_scores[i] < DETECTION_THRESH:
             continue
 
         purchases_amount[item_list[int(detection_classes[i])]['name']] = 0
@@ -268,7 +271,7 @@ def estimate(res):
         purchases_item_price[item_list[int(detection_classes[i])]['name']] = 0.0
     
     for i in range(num_of_detections):
-        if detection_scores[i] < 0.4:
+        if detection_scores[i] < DETECTION_THRESH:
             continue
 
         purchases_amount[item_list[int(detection_classes[i])]['name']] += 1
@@ -284,6 +287,32 @@ def test_json(json_path):
         purchases = estimate(res)
 
         print(purchases)
+
+
+def gen():
+    import time
+    cap = cv2.VideoCapture(0)
+    capturing = True
+    start = time.time()
+    while capturing:
+        ret, frame = cap.read()
+        if time.time() - start >= 3.0:
+            cap.release()
+            capturing = False
+
+        if not ret:
+            print("Error: failed to capture image")
+            break
+
+        cv2.imwrite('demo.jpg', frame)
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + open('demo.jpg', 'rb').read() + b'\r\n')
+
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(gen(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
         
 if __name__ == '__main__':
